@@ -106,9 +106,4 @@ venv.bak/
 
 # Project specific
 /audio_raytracing/assets/*.wav
-!/audio_raytracing/assets/audio.wav
-
-# GitHub upload instructions
-GITHUB_UPLOAD.md
-
-# Exclude GITHUB_UPLOAD.md from git 
+!/audio_raytracing/assets/audio.wav 
