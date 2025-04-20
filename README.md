@@ -1,149 +1,149 @@
 # Audio Ray Tracing Simulation
 
-A 2D simulation of sound propagation using ray tracing techniques, demonstrating the principles of acoustic wave propagation in environments with obstacles.
+A 2D proof-of-concept for simulating sound propagation through ray tracing techniques, enabling realistic spatial audio based on physical principles.
+
+## Overview
+
+This project demonstrates audio ray tracing - a technique for simulating how sound waves propagate through an environment, interact with obstacles, and reach a listener. Unlike traditional audio engines that use simple distance-based models, this simulation accounts for sound reflection, absorption, and path tracing for more realistic spatial audio experiences.
 
 ## Scientific Background
 
-### Acoustic Wave Propagation
+### Sound Propagation Physics
 
-Sound is a pressure wave that propagates through a medium like air. While sound waves actually propagate as spherical wavefronts in 3D environments, we can reasonably approximate sound propagation behavior using geometric ray tracing in certain frequency ranges. This simulation implements a ray-based approach to model how sound travels, reflects, and attenuates in a 2D environment.
+Sound waves propagate through a medium (typically air) as pressure oscillations. In this simulation, we model sound propagation using a geometric ray-based approach, which is an approximation that works well at frequencies where the wavelength is small compared to the obstacles in the environment.
 
-### Ray Tracing for Sound
+Key physical principles modeled:
 
-Ray tracing is traditionally used in computer graphics to simulate light paths, but it can also model sound propagation when certain conditions are met:
+1. **Inverse Square Law**: Sound intensity decreases with the square of the distance from the source
+   - Implemented as: `intensity = initial_energy / (distance^2)`
 
-1. **Geometric Acoustics Assumption**: When sound wavelengths are small compared to obstacles (high-frequency sounds), sound behaves similarly to rays.
-2. **Law of Reflection**: Sound reflects off surfaces following the same principle as light: angle of incidence equals angle of reflection.
-3. **Energy Attenuation**: Sound energy decreases with distance (typically following the inverse square law) and is partially absorbed at each reflection.
+2. **Sound Reflection**: Sound waves reflect off surfaces with the angle of reflection equal to the angle of incidence
+   - Reflection vectors calculated using: `reflection = incident - 2 * dot(incident, normal) * normal`
+   - Each reflection reduces energy based on the material's absorption coefficient
 
-### Physical Principles Implemented
+3. **Energy Absorption**: Different materials absorb different amounts of sound energy
+   - Materials have an absorption coefficient between 0 (perfect reflection) and 1 (complete absorption)
+   - Each reflection: `new_energy = energy * (1 - absorption)`
 
-This simulation implements several key acoustic phenomena:
+4. **Propagation Delay**: Sound travels at approximately 343 m/s in air at room temperature
+   - Time delay = distance / speed of sound
 
-#### 1. Distance-Based Attenuation
+### Bidirectional Ray Tracing Implementation
 
-Sound intensity decreases as it travels through space. In free-field conditions, this follows the inverse square law:
+The simulation uses a bidirectional ray tracing approach to model sound propagation accurately:
 
-```
-I ∝ 1/d²
-```
+1. Rays are cast from the listener/player in all directions
+2. When these rays intersect with sound sources, they're reflected back toward the player
+3. If these reflected rays reach the player, the corresponding sound path is considered audible
+4. The delay and intensity are calculated based on the total path length
 
-Where `I` is intensity and `d` is distance. For gameplay purposes, this simulation uses a modified attenuation model:
+In addition, direct sound paths from sources to the player are calculated to ensure continuous audio. This bidirectional approach provides more accurate simulation of how humans perceive sound by only processing audio paths that actually reach the listener.
 
-```
-I ∝ 1/d
-```
+## Features
 
-This allows sound to be audible over greater distances while still providing directional cues.
+- Real-time visualization of sound rays and propagation
+- Bidirectional path tracing for accurate sound perception
+- Physically-based sound reflection and absorption
+- Spatial audio mixing based on ray tracing data
+- Customizable environment with various obstacle types
+- Interactive player movement and environment exploration
 
-#### 2. Material-Based Absorption
+## Getting Started
 
-When sound hits a surface, some energy is absorbed based on the material properties. Each material has an absorption coefficient (α) that represents the fraction of energy absorbed:
+### Prerequisites
 
-```
-Ereflected = Eincident × (1-α)
-```
+- Python 3.10 or 3.12 (Note: Python 3.13 is not currently supported due to the removal of the `audioop` module)
+- Dependencies listed in `requirements.txt`
 
-Different materials (wood, concrete, glass, etc.) have different absorption coefficients, affecting how sound reflects and propagates.
+### Installation
 
-#### 3. Spatial Audio Processing
-
-The simulation creates a 3D audio experience by calculating:
-
-- **Interaural Time Difference (ITD)**: The difference in arrival time of sound at each ear
-- **Interaural Level Difference (ILD)**: The difference in sound intensity at each ear
-- **Direct and Reflected Paths**: Combining direct sound paths with reflected paths that arrive later
-
-#### 4. Propagation Delay
-
-Sound travels at approximately 343 m/s in air at room temperature. The simulation calculates arrival time for each sound path based on distance:
-
-```
-delay = distance / speed_of_sound
+1. Clone this repository
+```bash
+git clone https://github.com/EdenRochman/audio-raytracing.git
+cd audio-raytracing
 ```
 
-This creates realistic timing for direct sounds and reflections.
+2. Create and activate a virtual environment (recommended)
+```bash
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+```
 
-## Implementation Approach
+3. Install dependencies
+```bash
+pip install -r audio_raytracing/requirements.txt
+```
 
-The simulation uses a hybrid approach that balances scientific accuracy with real-time performance:
+### Running the Simulation
 
-1. **Ray-Based Propagation**: Casting rays from sound sources to model sound paths
-2. **Direct Path Calculation**: Always calculating a direct path from source to listener for continuous audio
-3. **Reflection Modeling**: Tracing rays as they bounce off obstacles with energy attenuation
-4. **Spatial Audio Rendering**: Converting ray tracing data into stereo audio with proper spatial cues
+For visual-only mode (no audio):
+```bash
+cd audio_raytracing
+python main_visual.py
+```
 
-## Controls
+For full version with audio:
+```bash
+cd audio_raytracing
+python main.py
+```
 
-- **Arrow Keys**: Move player
+Command line options:
+- `--rays N`: Sets the number of rays to cast (default: 360)
+- `--reflection-limit N`: Maximum number of reflections per ray (default: 3)
+- `--animation-speed S`: Controls the animation speed (default: 1.0)
+- `--mute`: Start with audio muted
+- `--volume V`: Set audio volume (0.0 to 1.0)
+
+### Controls
+
+- **Arrow keys**: Move the player/listener
+- **WASD**: Move the nearest sound source
 - **Q/E**: Rotate player
 - **Space**: Pause/Resume
-- **R**: Reset simulation
+- **R**: Reset the simulation
 - **+/-**: Adjust animation speed
-- **H**: Toggle help
-- **F1**: Toggle stats
-- **ESC**: Quit
-- **M**: Toggle audio
-
-## Running the Simulation
-
-```bash
-# Install dependencies
-pip install -r audio_raytracing/requirements.txt
-
-# Run the simulation
-python audio_raytracing/main.py
-
-# Run with custom parameters
-python audio_raytracing/main.py --rays 360 --animation-speed 1.0
-```
-
-## Command Line Options
-
-- `-r, --rays`: Number of rays per sound source (default: 360)
-- `-s, --speed`: Speed of sound in meters/second (default: 343.0)
-- `-a, --animation-speed`: Animation speed multiplier (default: 1.0)
-- `-e, --environment`: Path to environment JSON file (optional)
-- `-m, --mute`: Start with audio muted
-- `-v, --volume`: Set audio volume (0.0 to 1.0)
-
-## Dependencies
-
-- Python 3.10 or later (best with Python 3.12 or earlier)
-- pygame
-- numpy
-- scipy
-- pydub (for audio processing)
+- **H**: Toggle help overlay
+- **F1**: Toggle stats display
+- **M**: Toggle audio mute
+- **Esc**: Quit the simulation
 
 ## Project Structure
 
-```
-audio_raytracing/
-├── src/                   # Core simulation components
-│   ├── environment.py     # 2D environment definition
-│   ├── obstacles.py       # Obstacle classes with collision detection
-│   ├── player.py          # Player/listener implementation
-│   ├── sound_source.py    # Sound source implementation
-│   ├── ray_tracer.py      # Ray tracing algorithm
-│   └── audio/             # Audio processing components
-│       ├── mixer.py       # Spatial audio mixer
-│       └── player.py      # Audio playback
-├── assets/                # Audio files and resources
-├── tests/                 # Unit tests
-├── main.py                # Main application entry point
-└── requirements.txt       # Project dependencies
-```
+The core components are organized as follows:
 
-## Limitations and Future Work
+- `src/`: Core simulation code
+  - `environment.py`: Environment and simulation space
+  - `obstacles.py`: Various obstacle types and collision detection
+  - `player.py`: Player/listener position and orientation
+  - `sound_source.py`: Sound source characteristics
+  - `ray_tracer.py`: Ray tracing logic
+  - `physics/`: Physical models for sound
+  - `audio/`: Audio processing and playback
+- `tests/`: Unit tests for core components
+- `assets/`: Audio files and resources
+- `examples/`: Example environments and demonstrations
 
-This simulation is a simplified model of acoustic behavior and has several limitations:
+## Recent Improvements
 
-1. **Frequency-Dependent Effects**: The current model doesn't account for frequency-dependent behaviors like diffraction around obstacles.
-2. **Simplified Materials**: Material properties are reduced to a single reflection coefficient rather than frequency-dependent absorption.
-3. **2D Only**: Real sound propagates in 3D, including reflections from floors and ceilings.
+- **Bidirectional Ray Tracing**: Rays now originate from the player and reflect from sound sources back to the player
+- **Direct Path Calculation**: Added direct path calculations from sources to player for continuous audio
+- **Enhanced Spatial Audio**: Improved audio cues with interaural time and level differences
+- **Performance Optimization**: Reduced minimum energy threshold for better sound propagation
 
-Future work could include:
-- Frequency-dependent absorption and reflection
-- Diffraction effects for low-frequency sounds
-- Room impulse response generation for more realistic reverb
-- 3D environment modeling 
+## Future Directions
+
+- 3D sound propagation
+- Diffraction modeling for low frequencies
+- Real-time audio synthesis
+- Custom sound design tools
+- Performance optimizations
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- The project utilizes principles from geometric acoustics and computer graphics
+- Inspired by ray tracing techniques used in visual rendering and architectural acoustics 
