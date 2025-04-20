@@ -1,0 +1,290 @@
+# AUDIO RAY TRACING SIMULATION - USER MANUAL
+
+## Overview
+
+This project is a 2D audio ray tracing proof of concept implemented in Python. It simulates how sound waves propagate in a 2D environment, interact with obstacles, and reach a listener/player position. The simulation visualizes the sound ray paths and produces spatially accurate audio based on the physical properties of the environment.
+
+## Project Structure
+
+The project is organized as follows:
+
+```
+audio_raytracing/
+├── README.md              # Project overview and quick start
+├── requirements.txt       # Python dependencies
+├── main.py                # Entry point for the application
+├── src/                   # Source code
+│   ├── environment.py     # 2D environment implementation
+│   ├── obstacles.py       # Obstacle classes and collision detection
+│   ├── player.py          # Player/listener implementation
+│   ├── sound_source.py    # Sound emitter implementation
+│   ├── ray_tracer.py      # Ray tracing algorithm
+│   ├── physics/           # Physics simulation components
+│   │   ├── propagation.py # Sound propagation physics
+│   │   ├── reflection.py  # Reflection/absorption models
+│   │   └── simulation.py  # Main physics simulation loop
+│   ├── audio/             # Audio processing components
+│   │   ├── mixer.py       # Spatial audio mixer
+│   │   ├── effects.py     # Audio effects (delay, echo, etc.)
+│   │   └── player.py      # Audio playback
+│   └── visualization/     # Visualization components
+│       ├── renderer.py    # Main environment renderer
+│       ├── ray_vis.py     # Ray path visualization
+│       └── ui.py          # User interface elements
+├── assets/                # Audio files, textures, etc.
+├── examples/              # Example environments and demos
+└── tests/                 # Test cases
+```
+
+## Installation
+
+1. Ensure you have Python 3.8+ installed
+2. Clone the repository
+3. Install the required dependencies:
+   ```
+   pip install -r requirements.txt
+   ```
+
+## Running the Simulation
+
+To start the simulation with default settings:
+```
+python main.py
+```
+
+With custom parameters:
+```
+python main.py --environment examples/room.json --rays 100 --speed 343
+```
+
+## Key Components
+
+### Environment
+
+The environment represents the 2D space where sound propagation is simulated. It contains:
+- Boundaries (walls)
+- Obstacles with different acoustic properties
+- A player/listener position
+- One or more sound sources
+
+### Obstacles
+
+Obstacles are objects in the environment that block or reflect sound rays. Each obstacle has:
+- Geometric properties (position, shape)
+- Acoustic properties (reflection coefficient, absorption coefficient)
+- Material type (affecting frequency-dependent behavior)
+
+### Player/Listener
+
+The player represents the listener's position in the environment. It has:
+- Position coordinates
+- Orientation (direction facing)
+- Hearing properties (sensitivity)
+
+### Sound Sources
+
+Sound sources emit audio that propagates through the environment. Each source has:
+- Position coordinates
+- Audio file or generated sound
+- Volume/intensity
+- Directionality (optional)
+
+### Ray Tracing
+
+The ray tracing system:
+- Casts rays in multiple directions from sound sources
+- Tracks ray intersections with obstacles
+- Calculates reflections based on surface properties
+- Determines sound intensity and delay at the listener position
+
+## Controls
+
+- **Arrow Keys**: Move the player/listener
+- **Mouse**: Adjust player orientation
+- **Space**: Pause/resume simulation
+- **+/-**: Adjust animation speed
+- **R**: Reset simulation
+- **ESC**: Exit application
+- **1-9**: Select preset environments
+- **S**: Save current environment
+- **L**: Load environment
+- **Tab**: Toggle UI visibility
+
+## Parameters
+
+The following parameters can be adjusted during simulation:
+
+- **Ray Count**: Number of rays cast from each sound source
+- **Reflection Limit**: Maximum number of reflections per ray
+- **Propagation Speed**: Speed of sound (meters/second)
+- **Animation Speed**: Visualization speed multiplier
+- **Attenuation Model**: Linear or inverse square
+- **Material Properties**: Absorption and reflection coefficients
+
+## Creating Custom Environments
+
+Custom environments can be created programmatically or via JSON files. Example JSON format:
+
+```json
+{
+  "dimensions": [800, 600],
+  "player": {
+    "position": [400, 300],
+    "orientation": 0
+  },
+  "sound_sources": [
+    {
+      "position": [100, 100],
+      "audio_file": "piano.wav",
+      "volume": 1.0
+    }
+  ],
+  "obstacles": [
+    {
+      "type": "rectangle",
+      "position": [200, 150],
+      "dimensions": [100, 20],
+      "rotation": 45,
+      "material": "wood"
+    },
+    {
+      "type": "circle",
+      "position": [500, 400],
+      "radius": 50,
+      "material": "glass"
+    }
+  ]
+}
+```
+
+## Physics Model
+
+The simulation uses the following physical principles:
+
+1. **Ray Casting**: Sound is modeled as rays traveling in straight lines
+2. **Reflection**: Rays reflect off surfaces according to the law of reflection (angle of incidence equals angle of reflection)
+3. **Absorption**: Energy loss occurs at each reflection based on material properties
+4. **Distance Attenuation**: Sound intensity decreases with distance (inverse square law by default)
+5. **Delay Calculation**: Sound arrival time is calculated based on distance and propagation speed
+
+## Audio Processing
+
+The simulation includes a complete audio processing system that converts ray tracing data into spatial audio. This system consists of the following components:
+
+### Spatial Audio Mixer
+
+The spatial audio mixer converts ray tracing data into stereo audio by:
+
+1. **Loading Audio**: Reads audio files or generates tones for sound sources
+2. **Spatial Positioning**: Calculates inter-aural time differences (ITD) based on sound direction
+3. **Distance Attenuation**: Applies inverse square law to reduce volume with distance
+4. **Stereo Panning**: Places sounds in the stereo field based on their angle to the listener
+5. **Mixing**: Combines all sound paths into a coherent stereo output
+
+The mixer supports various panning laws for different stereo effects:
+- **Constant Power**: Maintains consistent perceived volume across the stereo field (default)
+- **Linear**: Simple linear volume distribution between channels
+- **Square Root**: Compromise between constant power and linear
+
+### Audio Effects
+
+The system provides several audio effects to enhance realism:
+
+1. **Delay**: Simple time delay based on distance and propagation speed
+2. **Echo**: Multiple repeating echoes with decay, simulating reflections
+3. **Reverb**: Simulated room acoustics with customizable size and damping
+
+Effects can be configured with parameters such as:
+- Delay time and feedback
+- Echo count, decay rate, and spacing
+- Room size and high-frequency damping for reverb
+
+### Controlling Audio
+
+During simulation, you can control audio with the following:
+
+- **M key**: Toggle audio on/off
+- **Command line options**:
+  - `--mute`: Start with audio muted
+  - `--volume VALUE`: Set initial volume (0.0 to 1.0)
+
+### Audio Processing Performance
+
+The audio processing is designed to be efficient:
+- Audio is processed at intervals rather than every frame
+- Audio data is cached to avoid repeated loading
+- Processing is skipped when no change in sound paths is detected
+
+For optimal performance, consider:
+- Using WAV format for audio files
+- Keeping audio files short (1-2 seconds)
+- Reducing the number of concurrent sound sources
+
+## Implementation Progress
+
+Below is a record of the implementation progress, updated as components are completed:
+
+### Core Components Status
+
+- ✅ Environment: Fully implemented with support for boundaries, obstacles, player, and sound sources
+- ✅ Obstacles: Implemented with multiple types (Rectangle, Circle, Line) with proper ray intersection detection
+- ✅ Player: Implemented with position, orientation, and hearing properties
+- ✅ Sound Source: Implemented with directional and omnidirectional capabilities
+- ✅ Ray Tracing: Implemented with multi-bounce reflection support
+- ✅ Reflection Model: Implemented with material-specific reflection/absorption
+- ✅ Propagation Model: Implemented with inverse square law and linear attenuation options
+
+### Visualization Status
+
+- ✅ Main Window: Implemented using Pygame
+- ✅ Environment Rendering: Implemented visualization of obstacles, player, and sound sources
+- ✅ Ray Visualization: Implemented with energy-based opacity
+- ✅ Animation: Implemented with adjustable speed control
+
+### Physics Status
+
+- ✅ Reflection Physics: Implemented with accurate angle calculation
+- ✅ Frequency-dependent Absorption: Implemented with material-specific properties
+- ✅ Sound Propagation: Implemented with distance-based delay and attenuation
+- ✅ Simulation Loop: Implemented with proper time stepping
+
+### User Interface Status
+
+- ✅ Keyboard Controls: Arrow keys for movement, space for pause, etc.
+- ✅ Help Screen: Toggleable with H key
+- ✅ Statistics Display: Shows FPS, ray count, etc.
+
+### Testing Status
+
+- ✅ Unit Tests: Created for all core components
+- ✅ Test Environment: Sample environment for demonstration
+
+### Audio Processing Status
+
+- ✅ Audio Loading/Playback: Implemented with support for WAV and other formats via pydub
+- ✅ Spatial Audio Mixer: Implemented with ITD calculation and distance attenuation
+- ✅ Audio Effects: Implemented delay, echo, and reverb effects
+- ✅ Frequency-dependent Absorption: Implemented material-specific absorption
+- ✅ Doppler Effect: Implemented for moving sources and listener
+
+### Missing Features
+
+The following features are planned but not yet implemented:
+
+- ❌ Sound Visualization: Waveform or spectrum visualization
+- ❌ Ray Tracing Optimization: Performance improvements for complex scenes
+- ❌ 3D Support: Only 2D environments are currently supported
+
+## Troubleshooting
+
+- **Performance Issues**: Reduce ray count or reflection limit
+- **Audio Problems**: Verify audio files exist and are in supported formats
+- **Visual Glitches**: Update graphics drivers or reduce visualization complexity
+- **Crashes**: Check the log file in logs/error.log for details
+
+## Known Limitations
+
+- 2D environments only (no height component)
+- Simplified acoustic modeling (limited frequency-dependent behavior)
+- Ray-based approach has limitations compared to wave-based acoustics
+- Performance constraints with high ray counts or complex environments 

@@ -1,0 +1,6 @@
+numpy>=1.20.0
+pygame>=2.0.0
+matplotlib>=3.4.0
+pydub>=0.25.1
+scipy>=1.7.0
+pytest>=6.2.5 
