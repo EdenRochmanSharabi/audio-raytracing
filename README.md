@@ -4,49 +4,35 @@ A 2D proof-of-concept for simulating sound propagation through ray tracing techn
 
 ## Overview
 
-This project demonstrates audio ray tracing - a technique for simulating how sound waves propagate through an environment, interact with obstacles, and reach a listener. Unlike traditional audio engines that use simple distance-based models, this simulation accounts for sound reflection, absorption, and path tracing for more realistic spatial audio experiences.
+This project demonstrates audio ray tracing - a technique for simulating how sound waves travel through an environment, bounce off obstacles, and reach your ears. Unlike typical game audio that simply fades sounds based on distance, this simulation creates a more immersive experience by calculating actual sound paths through the environment.
 
-## Scientific Background
+![Ray tracing visualization showing sound paths](screenshots/ray_paths.png)
 
-### Sound Propagation Physics
+## How Sound Travels in Our Simulation
 
-Sound waves propagate through a medium (typically air) as pressure oscillations. In this simulation, we model sound propagation using a geometric ray-based approach, which is an approximation that works well at frequencies where the wavelength is small compared to the obstacles in the environment.
+When you listen to sounds in the real world, you're actually hearing sound waves that have traveled along various paths to reach your ears. Our simulation recreates this natural phenomenon:
 
-Key physical principles modeled:
+1. **Sound paths matter**: Sound doesn't just travel in straight lines - it bounces off walls and objects before reaching you
+2. **Distance affects volume**: The further you are from a sound source, the quieter it becomes
+3. **Materials change sound**: Different surfaces (wood, concrete, glass) absorb or reflect sound differently
+4. **Sound takes time**: You hear distant sounds slightly later than close ones because sound needs time to travel
 
-1. **Inverse Square Law**: Sound intensity decreases with the square of the distance from the source
-   - Implemented as: `intensity = initial_energy / (distance^2)`
+The simulation traces rays from your position (the listener) outward in all directions. When these rays hit a sound source, they bounce back toward you. If they successfully return to your position, you'll hear that sound with the appropriate volume, delay, and spatial characteristics.
 
-2. **Sound Reflection**: Sound waves reflect off surfaces with the angle of reflection equal to the angle of incidence
-   - Reflection vectors calculated using: `reflection = incident - 2 * dot(incident, normal) * normal`
-   - Each reflection reduces energy based on the material's absorption coefficient
+![Sound rays emanating from player position](screenshots/player_rays.png)
 
-3. **Energy Absorption**: Different materials absorb different amounts of sound energy
-   - Materials have an absorption coefficient between 0 (perfect reflection) and 1 (complete absorption)
-   - Each reflection: `new_energy = energy * (1 - absorption)`
-
-4. **Propagation Delay**: Sound travels at approximately 343 m/s in air at room temperature
-   - Time delay = distance / speed of sound
-
-### Bidirectional Ray Tracing Implementation
-
-The simulation uses a bidirectional ray tracing approach to model sound propagation accurately:
-
-1. Rays are cast from the listener/player in all directions
-2. When these rays intersect with sound sources, they're reflected back toward the player
-3. If these reflected rays reach the player, the corresponding sound path is considered audible
-4. The delay and intensity are calculated based on the total path length
-
-In addition, direct sound paths from sources to the player are calculated to ensure continuous audio. This bidirectional approach provides more accurate simulation of how humans perceive sound by only processing audio paths that actually reach the listener.
+This approach creates truly spatial audio - sounds coming from your left actually sound like they're coming from your left, and sounds that bounce off multiple surfaces create a natural sense of reverberation and space.
 
 ## Features
 
-- Real-time visualization of sound rays and propagation
-- Bidirectional path tracing for accurate sound perception
-- Physically-based sound reflection and absorption
-- Spatial audio mixing based on ray tracing data
-- Customizable environment with various obstacle types
-- Interactive player movement and environment exploration
+- Real-time visualization of sound rays and how they travel
+- Two-way path tracing for accurate sound perception
+- Realistic sound reflection and absorption based on physics
+- Spatial audio mixing using the traced sound paths
+- Customizable environment with different obstacle types
+- Interactive movement through the sound environment
+
+![Multiple reflection paths showing complex sound behavior](screenshots/reflections.png)
 
 ## Getting Started
 
@@ -126,18 +112,18 @@ The core components are organized as follows:
 
 ## Recent Improvements
 
-- **Bidirectional Ray Tracing**: Rays now originate from the player and reflect from sound sources back to the player
-- **Direct Path Calculation**: Added direct path calculations from sources to player for continuous audio
-- **Enhanced Spatial Audio**: Improved audio cues with interaural time and level differences
-- **Performance Optimization**: Reduced minimum energy threshold for better sound propagation
+- **Two-way Ray Tracing**: Rays now start from your position and bounce off sound sources back to you
+- **Direct Sound Paths**: Added calculations for direct paths from sources to player for continuous audio
+- **Better Spatial Audio**: Improved how sounds are positioned in space with better left/right balance
+- **Increased Range**: Reduced minimum energy threshold so sound can travel further
 
-## Future Directions
+## Future Plans
 
 - 3D sound propagation
-- Diffraction modeling for low frequencies
+- Sound bending around corners for low frequencies
 - Real-time audio synthesis
 - Custom sound design tools
-- Performance optimizations
+- Performance improvements
 
 ## License
 
@@ -145,5 +131,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgments
 
-- The project utilizes principles from geometric acoustics and computer graphics
-- Inspired by ray tracing techniques used in visual rendering and architectural acoustics 
+- The project draws inspiration from both game audio and architectural acoustics
+- Thanks to everyone who contributed ideas and feedback 
