@@ -6,7 +6,6 @@ A 2D proof-of-concept for simulating sound propagation through ray tracing techn
 
 This project demonstrates audio ray tracing - a technique for simulating how sound waves travel through an environment, bounce off obstacles, and reach your ears. Unlike typical game audio that simply fades sounds based on distance, this simulation creates a more immersive experience by calculating actual sound paths through the environment.
 
-![Ray tracing visualization showing sound paths](screenshots/ray_paths.png)
 
 ## How Sound Travels in Our Simulation
 
@@ -19,7 +18,6 @@ When you listen to sounds in the real world, you're actually hearing sound waves
 
 The simulation traces rays from your position (the listener) outward in all directions. When these rays hit a sound source, they bounce back toward you. If they successfully return to your position, you'll hear that sound with the appropriate volume, delay, and spatial characteristics.
 
-![Sound rays emanating from player position](screenshots/player_rays.png)
 
 This approach creates truly spatial audio - sounds coming from your left actually sound like they're coming from your left, and sounds that bounce off multiple surfaces create a natural sense of reverberation and space.
 
@@ -31,8 +29,6 @@ This approach creates truly spatial audio - sounds coming from your left actuall
 - Spatial audio mixing using the traced sound paths
 - Customizable environment with different obstacle types
 - Interactive movement through the sound environment
-
-![Multiple reflection paths showing complex sound behavior](screenshots/reflections.png)
 
 ## Getting Started
 
